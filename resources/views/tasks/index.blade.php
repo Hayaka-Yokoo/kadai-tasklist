@@ -11,6 +11,7 @@
             <thread>
                 <tr>
                     <th>id</th>
+                    <th>ステータス</th>
                     <th>タスク</th>
                 </tr>
             </thread>
