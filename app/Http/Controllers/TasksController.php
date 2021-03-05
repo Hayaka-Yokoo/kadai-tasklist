@@ -58,7 +58,7 @@ class TasksController extends Controller
         
         // タスクを作成
         $task = new Task;
-        $task->status = $rewuest->status;
+        $task->status = $request->status;
         $task->content = $request->content;
         $task->save();
         
