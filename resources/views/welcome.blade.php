@@ -1,8 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-    @if (Auth::check())
-        {{ Auth::user()->name }}
+    @if (\Auth::check())
+        <div class="row">
+            <div class="col-sm-8">
+                {{-- タスク一覧 --}}
+                <h1>タスク一覧</h1>
+                @include('tasks.tasks')
+            </div>
+        </div>
     @else
         <div class="center jumbotron">
             <div class="text-center">
