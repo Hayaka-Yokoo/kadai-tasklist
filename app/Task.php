@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
-    protected $fillable = ['content', 'status', 'user_id'];
+    protected $fillable = ['status', 'content', 'user_id'];
     
     /**
      * このタスクを所有するユーザ。（ Userモデルとの関係を定義）

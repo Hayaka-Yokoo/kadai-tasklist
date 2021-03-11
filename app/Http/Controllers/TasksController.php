@@ -16,26 +16,22 @@ class TasksController extends Controller
      // getでtasks/にアクセスされた場合の「一覧表示処理」
     public function index()
     {
-        $data = [];
         if(\Auth::check()){
             // 認証済みユーザを取得
             $user = \Auth::user();
             // タスク一覧を取得
             $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
-            
-            $data = [
-                'user' => $user,
-                'tasks' => $tasks,
-            ];
-            
+
             return view('tasks.index', [
                 'tasks' => $tasks,
             ]);
-        }else{
-            // Welcomeビューでそれを表示
-            return view('welcome');
         }
+        
+        // Welcomeビューでそれを表示
+        return view('welcome');
+        
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -68,12 +64,20 @@ class TasksController extends Controller
             'content' => 'required|max:255',
         ]);
         
+        // 認証済みユーザのタスクとして作成
+        $request->user()->tasks()->create([
+            'status' => $request->status,
+            'content' => $request->content,
+        ]);
+        
+        /*
         // タスクを作成
         $task = new Task;
         $task->status = $request->status;
         $task->content = $request->content;
         $task->user_id = $request->user()->id;
         $task->save();
+        */
         
         // トップページへリダイレクトさせる
         return redirect('/');
@@ -91,10 +95,14 @@ class TasksController extends Controller
         // idの値でタスクを検索して取得
         $task = Task::findOrFail($id);
         
-        // タスク詳細ビューでそれを表示
-        return view('tasks.show', [
-            'task' => $task,
-        ]);
+        // 認証済みユーザ（閲覧者）がそのタスクの所有者である場合は、タスク詳細ビューでそれを表示
+        if (\Auth::id() === $task->user_id) {
+            return view('tasks.show', [
+                'task' => $task,
+            ]);
+        }
+        
+        return redirect('/');
     }
 
     /**
@@ -109,10 +117,14 @@ class TasksController extends Controller
         // id の値でタスクを検索して取得
         $task = Task::findOrFail($id);
         
-        // タスク編集ビューでそれを表示
-        return view('tasks.edit', [
-            'task' => $task,
-        ]);
+        // 認証済みユーザ（閲覧者）がそのタスクの所有者である場合は、タスク編集ビューでそれを表示
+        if (\Auth::id() === $task->user_id) {
+            return view('tasks.edit', [
+                'task' => $task,
+            ]);
+        }
+        
+        return redirect('/');
     }
 
     /**
@@ -133,10 +145,22 @@ class TasksController extends Controller
         
         // idの値でタスクを検索して取得
         $task = Task::findOrFail($id);
+        
+        // 認証済みユーザ（閲覧者）がそのタスクの所有者である場合
+        if (\Auth::id() === $task->user_id) {
+            //認証済みユーザのタスクとして編集
+            $request->user()->tasks()->create([
+                'status' => $request->status,
+                'content' => $request->content,
+            ]);
+        }
+        
+        /*
         // タスクを更新
         $task->status = $request->status;
         $task->content = $request->content;
         $task->save();
+        */
         
         // トップページへリダイレクトさせる
         return redirect('/');
@@ -155,7 +179,7 @@ class TasksController extends Controller
         $task = Task::findOrFail($id);
         
         // 認証済みユーザ（閲覧者）がそのタスクの所有者である場合は、タスクを削除
-        if (\Auth::id() === $micropost->user_id) {
+        if (\Auth::id() === $task->user_id) {
             $task->delete();
         }
         /*
@@ -167,3 +191,4 @@ class TasksController extends Controller
         return redirect('/');
     }
 }
+
