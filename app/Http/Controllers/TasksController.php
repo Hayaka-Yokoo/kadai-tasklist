@@ -148,11 +148,9 @@ class TasksController extends Controller
         
         // 認証済みユーザ（閲覧者）がそのタスクの所有者である場合
         if (\Auth::id() === $task->user_id) {
-            //認証済みユーザのタスクとして編集
-            $request->user()->tasks()->create([
-                'status' => $request->status,
-                'content' => $request->content,
-            ]);
+            $task->status = $request->status;
+            $task->content = $request->content;
+            $task->save();
         }
         
         /*
@@ -160,6 +158,11 @@ class TasksController extends Controller
         $task->status = $request->status;
         $task->content = $request->content;
         $task->save();
+        //認証済みユーザのタスクとして編集
+            $request->user()->tasks()->create([
+                'status' => $request->status,
+                'content' => $request->content,
+            ]);
         */
         
         // トップページへリダイレクトさせる
